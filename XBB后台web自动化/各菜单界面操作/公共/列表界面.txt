@@ -1,0 +1,19 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+翻页
+    [Arguments]    ${菜单}    ${每页条数}=20    ${输入跳转页}=2    ${点击跳转页}=2
+    Click Element    xpath=//div[@class="el-scrollbar__view"]//span[contains(text(), "${菜单}")]    #回到菜单TAB页，确保以下操作正确
+    Execute Javascript    window.scrollTo(0,1000)    #滚动窗口到底部
+    Click Element    xpath=//button[@class="btn-next"]    #翻页【下一页】
+    sleep    1
+    Click Element    xpath=//button[@class="btn-prev"]    #翻页【上一页】
+    sleep    1
+    Input Text    xpath=//span[@class="el-pagination__jump"]//input[@class="el-input__inner"]    ${输入跳转页}    #跳转到对应页
+    Press Key    xpath=//span[@class="el-pagination__jump"]//input[@class="el-input__inner"]    \\13    #按回车键
+    Comment    sleep    1
+    Comment    Click Element    xpath=//input[@placeholder="请选择" and @class="el-input__inner"]    #展开每页条数选择
+    Comment    Click Element    xpath=//ul/li/span[contains(text(), "${每页条数}")]    #每页条数选择
+    Comment    sleep    1
+    Comment    Click Element    xpath=//ul/li[contains(text(), "${点击跳转页}")]    #翻页

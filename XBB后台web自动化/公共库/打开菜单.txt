@@ -1,0 +1,14 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+打开商品管理菜单
+    Click Element    xpath=//ul[@class="nav"]/li[contains(text(), "商品管理")]    #打开一级菜单，找到文本包含某个值的元素
+    Comment    sleep    1
+    Click Element    xpath=//*[@href="#/pms/product"]    #点击商品管理菜单
+    Comment    sleep    1
+
+打开待审核商品菜单
+    Click Element    xpath=//ul[@class="nav"]/li[contains(text(), "商品管理")]    #打开一级菜单，找到文本包含某个值的元素
+    sleep    1
+    Click Element    xpath=//*[@href="#/pms/productAudit"]    #点击商品管理菜单

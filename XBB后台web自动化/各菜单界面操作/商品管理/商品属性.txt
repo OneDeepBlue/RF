@@ -1,0 +1,13 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+查询条件
+    [Arguments]    ${搜索关键字}=
+    Input Text    xpath=//input[@class="el-input__inner" and @placeholder="输入关键词"]    ${搜索关键字}
+
+打开菜单
+    Click Element    xpath=//ul[@class="nav"]/li[contains(text(), "商品管理")]    #打开一级菜单，找到文本包含某个值的元素
+    Comment    sleep    1
+    Click Element    xpath=//*[@href="#/pms/productAttr"]    #点击菜单
+    Comment    sleep    1

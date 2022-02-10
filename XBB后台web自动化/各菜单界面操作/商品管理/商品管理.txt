@@ -1,0 +1,84 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          ../公共/列表界面.txt
+
+*** Keywords ***
+打开菜单
+    Click Element    xpath=//ul[@class="nav"]/li[contains(text(), "商品管理")]    #打开一级菜单，找到文本包含某个值的元素
+    Comment    sleep    1
+    Click Element    xpath=//*[@href="#/pms/product"]    #点击商品管理菜单
+    sleep    2
+
+查询条件
+    [Arguments]    ${搜索关键字}=    ${前台类目}=    ${后台类目}=
+    Click Element    xpath=//div[@class="el-scrollbar__view"]//span[contains(text(), "商品管理")]    #回到商品管理TAB页，确保以下操作正确
+    Input Text    xpath=//input[@class="el-input__inner" and @placeholder="输入关键词"]    ${搜索关键字}
+    Input Text    xpath=//label[contains(text(), "前台类目")]/following-sibling::div//input[@placeholder="可输入关键词查询"]    ${前台类目}    #筛选类目
+    Run Keyword If    "${前台类目}"!=""    Click Element    xpath=//span[contains(text(), "${前台类目}")]    #选择类目
+    Input Text    xpath=//label[contains(text(), "后台类目")]/following-sibling::div//input[@placeholder="可输入关键词查询"]    ${后台类目}
+    Run Keyword If    "${后台类目}"!=""    Click Element    xpath=//span[contains(text(), "${后台类目}")]    #选择类目
+
+查询
+    Click Element    xpath=(//span[contains(text(), "查询")]/..)[last()]    #点击查询按钮
+    sleep    1
+
+重置查询条件
+    Click Element    xpath=(//span[contains(text(), "重置")]/..)[last()]    #点击重置按钮
+
+查询商品状态切换
+    [Arguments]    ${商品状态}=0
+    [Documentation]    商品状态：0=全部，1=审核通过，2=在售中，3=已售罄，4=已下架
+    Click Element    xpath=//div[@class="el-scrollbar__view"]//span[contains(text(), "商品管理")]    #回到商品管理TAB页，确保以下操作正确
+    Click Element    xpath=//*[@id="tab-${商品状态}"]
+
+发布商品
+    [Arguments]    ${商品档案}    ${自定义关键字}=    ${商品名称}=    ${排序权重}=1    ${推荐语}=UI自动化测试-这是推荐语    ${商品库存}=100    ${库存预警值}=10    ${原价}=10.99    ${当前售价}=1.99    ${服务标签}=品质保障
+    Click Element    xpath=//div[@class="el-scrollbar__view"]//span[contains(text(), "商品管理")]    #回到商品管理TAB页，确保以下操作正确
+    Click Element    xpath=//span[contains(text(), "发布商品")]/parent::button    #点击发布商品按钮
+    sleep    2
+    Input Text    xpath=//label[contains(text(), "关联商品档案")]/following-sibling::div//input[@placeholder="请输入基础商品名称或基础商品货号查询"]    ${商品档案}    #筛选类目
+    Run Keyword If    "${商品档案}"!=""    Click Element    xpath=//span[contains(text(), "${商品档案}")]    #选择类目
+    Click Element    xpath=//input[@placeholder="请选择所属店铺"]
+    Click Element    xpath=//span[contains(text(), "乡帮帮旗舰店")]
+    Input Text    xpath=//input[@placeholder="请输入自定义关键词"]    ${自定义关键字}
+    Run Keyword If    "${商品名称}"!=""    Input Text    xpath=//input[@placeholder="请输入商品名称"]    ${商品名称}    #输入商品名称，为空跳过
+    Input Text    xpath=//input[@placeholder="请输入排序权重"]    ${排序权重}
+    Input Text    xpath=//textarea[@placeholder="请输入推荐语"]    ${推荐语}
+    Comment    Execute Javascript    window.scrollTo(0,700)    #滚动窗口
+    Click Element    xpath=//*[@class="anchor-box"]/li[contains(text(), "价格与库存")]    #切换【价格与库存】TAB
+    Click Element    xpath=(//*[@class="el-checkbox__inner"])[1]    #勾选规格复选框
+    sleep    1
+    Input Text    xpath=//input[@placeholder="请输入商品库存"]    ${商品库存}
+    Input Text    xpath=//input[@placeholder="请输入库存预警值"]    ${库存预警值}
+    Input Text    xpath=//input[@placeholder="请输入原价"]    ${原价}
+    Input Text    xpath=//input[@placeholder="请输入当前售价"]    ${当前售价}
+    Click Element    xpath=//*[@class="anchor-box fixed"]/li[contains(text(), "图文信息")]    #切换【图文信息】TAB
+    Choose File    xpath=(//input[@name="fileParam"])[1]    ${CURDIR}\\file\\20009153370.jpg    #上传商品图片，第一张
+    sleep    1
+    Choose File    xpath=(//input[@name="fileParam"])[1]    ${CURDIR}\\file\\20009138004.jpg    #上传商品图片，第二张
+    Click Element    xpath=//span[contains(text(), "上传图片")]/parent::button    #点击上传图片按钮
+    Choose File    xpath=(//input[@name="fileParam"])[4]    ${CURDIR}\\file\\19929109433.jpg    #图文详情，第1张
+    sleep    1
+    Choose File    xpath=(//input[@name="fileParam"])[4]    ${CURDIR}\\file\\2211475926082.jpg    #图文详情，第2张
+    Click Element    xpath=(//span[contains(text(), "确 定")]/parent::button)[2]    #点击确定按钮，确定上传图片
+    Click Element    xpath=//*[@class="anchor-box fixed"]/li[contains(text(), "服务与资质")]    #切换【服务资质】TAB
+    sleep    0.5
+    Click Element    xpath=//span[contains(text(), "${服务标签}")]/preceding-sibling::span/span    #勾选服务标签
+    Choose File    xpath=(//input[@name="fileParam"])[2]    ${CURDIR}\\file\\19929109433.jpg    #上传品类资质
+    Choose File    xpath=(//input[@name="fileParam"])[3]    ${CURDIR}\\file\\2211475926082.jpg    #上传质检报告
+    sleep    3
+    Click Element    xpath=//span[contains(text(), "提交审核")]/parent::button    #点击提交审核
+    Click Element    xpath=//span[contains(text(), "确定")]/parent::button    #点击确定提交
+    Wait Until Element Is Visible    class=el-message__content    8    \    #等待提示框出现
+    ${提示语}    Get Text    class=el-message__content    #获取提示内容
+    Comment    log    ${提示语}
+    [Return]    ${提示语}
+
+数据操作
+    [Arguments]    ${商品名称}    ${操作}
+    Click Element    xpath=//div[@class="el-scrollbar__view"]//span[contains(text(), "商品管理")]    #回到商品管理TAB页，确保以下操作正确
+    Click Element    xpath=//td[@class="el-table_1_column_2 is-center "]/div[contains(text(), "${商品名称}")]/ancestor::tr/td[@class="el-table_1_column_13 is-left "]//span[contains(text(), "${操作}")]/ancestor::button    #点击操作按钮
+    Run Keyword If    '${操作}'=='上架' or '${操作}'=='下架'    Click Element    xpath=//span[contains(text(), "确定")]/parent::button
+    Run Keyword If    '${操作}'=='上架' or '${操作}'=='下架'    Wait Until Element Is Visible    class=el-message__content    8    #等待提示框出现
+    ${提示语}    Run Keyword If    '${操作}'=='上架' or '${操作}'=='下架'    Get Text    class=el-message__content    #获取提示内容
+    [Return]    ${提示语}

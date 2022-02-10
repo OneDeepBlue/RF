@@ -1,0 +1,15 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+打开浏览器
+    [Arguments]    ${URL}=http://test.zonemall.xbbang.cn/
+    [Documentation]    默认打开谷歌浏览器
+    Open Browser    ${URL}    chrome
+    Maximize Browser Window    #浏览器窗口最大化
+    Set Selenium Implicit Wait    10    #全局设置等待元素出现
+    Comment    Set Selenium Speed    0.1    #全局设置每个操作间隔时间
+
+关闭浏览器
+    sleep    3
+    Close Browser

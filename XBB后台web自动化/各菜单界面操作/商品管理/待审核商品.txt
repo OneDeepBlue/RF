@@ -1,0 +1,36 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+打开菜单
+    Click Element    xpath=//ul[@class="nav"]/li[contains(text(), "商品管理")]    #打开一级菜单，找到文本包含某个值的元素
+    sleep    1
+    Click Element    xpath=//*[@href="#/pms/productAudit"]    #点击商品管理菜单
+
+查询条件
+    [Arguments]    ${商品名称}=    ${前台类目}=    ${后台类目}=    ${创建日期-开始}=    ${创建日期-结束}=
+    Input Text    xpath=//input[@class="el-input__inner" and @placeholder="请输入商品名称"]    ${商品名称}
+    Input Text    xpath=//label[contains(text(), "前台类目")]/following-sibling::div//input[@placeholder="可输入关键词查询"]    ${前台类目}    #筛选类目
+    Run Keyword If    "${前台类目}"!=""    Click Element    xpath=(//li[@class="el-cascader__suggestion-item"]/span[contains(text(), "${前台类目}")])[1]    #选择类目
+    Input Text    xpath=//label[contains(text(), "后台类目")]/following-sibling::div//input[@placeholder="可输入关键词查询"]    ${后台类目}
+    Run Keyword If    "${后台类目}"!=""    Click Element    xpath=(//li[@class="el-cascader__suggestion-item"]/span[contains(text(), "${后台类目}")])[1]    #选择类目
+    Input Text    xpath=//input[@placeholder="开始日期"]    ${创建日期-开始}
+    Input Text    xpath=//input[@placeholder="结束日期"]    ${创建日期-结束}
+
+查询
+    Click Element    xpath=(//span[contains(text(), "查询")]/..)[last()]    #点击查询按钮
+    sleep    1
+
+数据操作
+    [Arguments]    ${商品名称}    ${操作}
+    Click Element    xpath=//td[@class="el-table_1_column_3 is-center "]/div[contains(text(), "${商品名称}")]/ancestor::tr/td[@class="el-table_1_column_12 is-center "]//span[contains(text(), "${操作}")]/ancestor::button     #点击操作按钮
+    sleep    2
+
+商品审核
+    [Arguments]    ${操作}
+    [Documentation]    操作：审核通过、审核失败
+    Click Element    xpath=//span[contains(text(), "${操作}")]/parent::button    #执行操作
+    Run Keyword If    '${操作}'=='审核失败' or '${操作}'=='审核通过'    Click Element    xpath=//span[contains(text(), "确定")]/parent::button
+    Run Keyword If    '${操作}'=='审核失败' or '${操作}'=='审核通过'    Wait Until Element Is Visible    class=el-message__content    8    #等待提示框出现
+    ${提示语}    Run Keyword If    '${操作}'=='审核失败' or '${操作}'=='审核通过'    Get Text    class=el-message__content    #获取提示内容
+    [Return]    ${提示语}

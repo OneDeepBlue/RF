@@ -1,0 +1,27 @@
+*** Settings ***
+Library           Selenium2Library
+
+*** Keywords ***
+登录
+    [Arguments]    ${账号}=admin    ${密码}=123456789
+    [Documentation]    输入参数：
+    ...    ${账号}=admin | ${密码}=123456789
+    ...
+    ...    返回参数：
+    ...    ${retMsg}
+    Input Text    name=username    ${账号}
+    Input Text    name=password    ${密码}
+    Click Element    xpath=//button[@class="el-button logon_btn el-button--primary"]
+    Wait Until Element Is Visible    class=el-message__content    8    \    #等待元素出现
+    ${提示语}    Get Text    class=el-message__content    #获取提示内容
+    Comment    log    ${提示语}
+    Sleep    1
+    [Return]    ${提示语}
+
+退出登录
+    Click Element    xpath=//i[@class="el-icon-caret-bottom"]    #点击我的
+    sleep    0.5
+    Click Element    xpath=//li[@class="el-dropdown-menu__item el-dropdown-menu__item--divided"]    #点击退出按钮
+    sleep    1
+    ${url}    Log Location    #获取当前URL
+    Run Keyword And Continue On Failure    should contain    ${url}    login    #断言当前URL是否包含，断言失败继续后续流程
